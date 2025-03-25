@@ -1,14 +1,21 @@
 package com.example.restaruantnew;
 
-
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class HelloApplication extends Application {
+
+    private ObservableList<String> cartItems = FXCollections.observableArrayList();
+    private ObservableList<String> orderQueue = FXCollections.observableArrayList();
+    private ObservableList<String> tableStatus = FXCollections.observableArrayList(
+            "Table 1 - Clean", "Table 2 - Occupied", "Table 3 - Dirty", "Table 4 - Clean", "Table 5 - Occupied"
+    );
 
     @Override
     public void start(Stage primaryStage) {
@@ -35,40 +42,15 @@ public class HelloApplication extends Application {
 
         Scene loginScene = new Scene(loginPane, 400, 300);
 
-        // Table Status Screen (for waiters)
-        VBox tableStatusPane = new VBox(10);
-        tableStatusPane.setAlignment(Pos.CENTER);
-        Button table1 = new Button("Table 1 (Open)");
-        Button table2 = new Button("Table 2 (Occupied)");
-        Button table3 = new Button("Table 3 (Dirty)");
-        Button orderButton = new Button("Take Order");
-        Button logoutButton = new Button("Logout");
-
-        tableStatusPane.getChildren().addAll(new Label("Table Status"), table1, table2, table3, orderButton, logoutButton);
-        Scene tableStatusScene = new Scene(tableStatusPane, 400, 300);
-
-        // Order Management Screen
-        VBox orderPane = new VBox(10);
-        orderPane.setAlignment(Pos.CENTER);
-        Label orderLabel = new Label("Select an Item");
-        ComboBox<String> menuItems = new ComboBox<>();
-        menuItems.getItems().addAll("Appetizer", "Entree", "Side", "Dessert");
-        Button confirmOrder = new Button("Confirm Order");
-        Button backButton = new Button("Back");
-
-        orderPane.getChildren().addAll(orderLabel, menuItems, confirmOrder, backButton);
-        Scene orderScene = new Scene(orderPane, 400, 300);
-
         // Kitchen Queue Screen
         VBox kitchenPane = new VBox(10);
         kitchenPane.setAlignment(Pos.CENTER);
         Label kitchenLabel = new Label("Kitchen Queue");
-        ListView<String> orderQueue = new ListView<>();
+        ListView<String> kitchenQueue = new ListView<>(orderQueue);
         Button markReady = new Button("Mark as Ready");
         Button logoutKitchen = new Button("Logout");
 
-
-        kitchenPane.getChildren().addAll(kitchenLabel, orderQueue, markReady, logoutKitchen);
+        kitchenPane.getChildren().addAll(kitchenLabel, kitchenQueue, markReady, logoutKitchen);
         Scene kitchenScene = new Scene(kitchenPane, 400, 300);
 
         // Manager Dashboard
@@ -82,14 +64,27 @@ public class HelloApplication extends Application {
         managerPane.getChildren().addAll(managerLabel, viewReports, manageStaff, logoutManager);
         Scene managerScene = new Scene(managerPane, 400, 300);
 
+        // Busboy Table Status Screen
+        VBox busboyPane = new VBox(10);
+        busboyPane.setAlignment(Pos.CENTER);
+        Label busboyLabel = new Label("Table Status");
+        ListView<String> tableList = new ListView<>(tableStatus);
+        Button markClean = new Button("Mark as Clean");
+        Button logoutBusboy = new Button("Logout");
+
+        busboyPane.getChildren().addAll(busboyLabel, tableList, markClean, logoutBusboy);
+        Scene busboyScene = new Scene(busboyPane, 400, 300);
+
         // Event Handlers
         loginButton.setOnAction(e -> {
             String username = userField.getText();
             String password = passField.getText();
             if (username.equals("waiter") && password.equals("1234")) {
-                primaryStage.setScene(tableStatusScene);
+                primaryStage.setScene(kitchenScene);
             } else if (username.equals("manager") && password.equals("admin")) {
                 primaryStage.setScene(managerScene);
+            } else if (username.equals("busboy") && password.equals("cleaner")) {
+                primaryStage.setScene(busboyScene);
             } else if (username.equals("cook") && password.equals("kitchen")) {
                 primaryStage.setScene(kitchenScene);
             } else {
@@ -97,23 +92,22 @@ public class HelloApplication extends Application {
             }
         });
 
-        logoutButton.setOnAction(e -> primaryStage.setScene(loginScene));
-        logoutManager.setOnAction(e -> primaryStage.setScene(loginScene));
-        logoutKitchen.setOnAction(e -> primaryStage.setScene(loginScene));
-        backButton.setOnAction(e -> primaryStage.setScene(tableStatusScene));
+        markClean.setOnAction(e -> {
+            String selectedTable = tableList.getSelectionModel().getSelectedItem();
+            if (selectedTable != null && selectedTable.contains("Dirty")) {
+                tableStatus.set(tableStatus.indexOf(selectedTable), selectedTable.replace("Dirty", "Clean"));
+            }
+        });
 
-        orderButton.setOnAction(e -> primaryStage.setScene(orderScene));
-        confirmOrder.setOnAction(e -> {
-            if (!menuItems.getSelectionModel().isEmpty()) {
-                orderQueue.getItems().add(menuItems.getSelectionModel().getSelectedItem());
-                primaryStage.setScene(tableStatusScene);
-            }
-        });
         markReady.setOnAction(e -> {
-            if (!orderQueue.getItems().isEmpty()) {
-                orderQueue.getItems().remove(0);
+            if (!orderQueue.isEmpty()) {
+                orderQueue.remove(0);
             }
         });
+
+        logoutBusboy.setOnAction(e -> primaryStage.setScene(loginScene));
+        logoutKitchen.setOnAction(e -> primaryStage.setScene(loginScene));
+        logoutManager.setOnAction(e -> primaryStage.setScene(loginScene));
 
         primaryStage.setScene(loginScene);
         primaryStage.show();
