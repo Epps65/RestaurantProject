@@ -1,21 +1,17 @@
-/* Styles.css */
-.root {
-    -fx-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    -fx-font-smoothing-type: gray;
-}
-
-/* Login Screen */
-#loginPane {
-    -fx-background-color: #f5f5f7;
-    -fx-padding: 40px;
-}
-
+/* Login Screen Styles */
 .label {
     -fx-font-size: 14px;
     -fx-text-fill: #1d1d1f;
 }
 
-.text-field, .password-field, .combo-box {
+#titleLabel {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1d1d1f;
+    -fx-padding: 0 0 20px 0;
+}
+
+.text-field, .password-field {
     -fx-background-color: #ffffff;
     -fx-background-radius: 6px;
     -fx-border-radius: 6px;
@@ -23,131 +19,85 @@
     -fx-border-width: 1px;
     -fx-padding: 8px 12px;
     -fx-font-size: 14px;
+    -fx-min-width: 200px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);
 }
 
-.text-field:focused, .password-field:focused, .combo-box:focused {
-    -fx-border-color: #0071e3;
-    -fx-effect: dropshadow(gaussian, rgba(0,113,227,0.15), 4, 0, 0, 2);
+#loginButton {
+    -fx-background-color: #0071e3;
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-padding: 10px 20px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-min-width: 200px;
+    -fx-effect: dropshadow(gaussian, rgba(0,113,227,0.3), 4, 0, 0, 1);
 }
 
-.button {
+#loginButton:hover {
+    -fx-background-color: #0077ed;
+}
+
+#loginButton:pressed {
+    -fx-background-color: #0062ba;
+}
+
+#loginPane {
+    -fx-background-color: #f5f5f7;
+    -fx-alignment: center;
+}
+
+/* Waiter Screen */
+#waiterPane {
+    -fx-background-color: #f5f5f7;
+}
+
+.table-button {
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+}
+
+.table-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+#punchButton {
     -fx-background-color: #0071e3;
     -fx-text-fill: white;
     -fx-background-radius: 20px;
     -fx-padding: 8px 16px;
-    -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,113,227,0.3), 4, 0, 0, 1);
 }
 
-.button:hover {
-    -fx-background-color: #0077ed;
-}
-
-.button:pressed {
-    -fx-background-color: #0062ba;
-}
-
-/* List Views */
-.list-view {
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 8px;
-    -fx-border-radius: 8px;
-    -fx-border-color: #e5e5ea;
-    -fx-border-width: 1px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);
-}
-
-.list-cell {
-    -fx-padding: 10px 15px;
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-}
-
-.list-cell:filled:selected {
-    -fx-background-color: #0071e3;
-    -fx-text-fill: white;
-}
-
-.list-cell:filled:hover {
-    -fx-background-color: #f5f5f7;
-}
-
-/* VBox Containers */
-.vbox {
-    -fx-background-color: #f5f5f7;
-    -fx-padding: 30px;
-    -fx-spacing: 15px;
-}
-
-/* Labels */
-.label {
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #1d1d1f;
-    -fx-padding: 0 0 10px 0;
-}
-
-/* Special Buttons */
-#markClean, #markOccupied, #markReady {
-    -fx-background-color: #34c759;
-}
-
-#markClean:hover, #markOccupied:hover, #markReady:hover {
-    -fx-background-color: #30d158;
-}
-
-#markClean:pressed, #markOccupied:pressed, #markReady:pressed {
-    -fx-background-color: #248a3d;
-}
-
-#logoutButton, #logoutBusboy, #logoutKitchen, #logoutManager, #backButton {
+#logoutButton {
     -fx-background-color: transparent;
     -fx-text-fill: #0071e3;
     -fx-border-color: #0071e3;
     -fx-border-width: 1px;
     -fx-border-radius: 20px;
-    -fx-effect: none;
 }
 
-#logoutButton:hover, #logoutBusboy:hover, #logoutKitchen:hover, #logoutManager:hover, #backButton:hover {
-    -fx-background-color: rgba(0,113,227,0.1);
+#statusLabel {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 10px 0 0;
 }
 
-/* Combo Box Dropdown */
-.combo-box-popup .list-view {
-    -fx-background-color: white;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
-}
-
-.combo-box-popup .list-cell {
-    -fx-padding: 8px 12px;
-}
-
-.combo-box-popup .list-cell:hover {
+/* Busboy Specific Styles */
+#busboyPane {
     -fx-background-color: #f5f5f7;
 }
 
-/* Message Label */
-#messageLabel {
-    -fx-text-fill: #ff3b30;
-    -fx-font-size: 13px;
+#busboyStatusLabel {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 10px 0 0;
+    -fx-text-fill: #0071e3; /* Blue color to distinguish from waiter */
 }
 
-/* Table Status Specific */
-.list-cell:contains("Dirty") {
-    -fx-text-fill: #ff3b30;
-    -fx-font-weight: bold;
-}
-
-.list-cell:contains("Occupied") {
-    -fx-text-fill: #ff9500;
-    -fx-font-weight: bold;
-}
-
-.list-cell:contains("Clean") {
-    -fx-text-fill: #34c759;
-    -fx-font-weight: bold;
+/* Make dirty tables more visible for busboy */
+.button:dirty {
+    -fx-effect: dropshadow(gaussian, rgba(255,59,48,0.5), 10, 0, 0, 0);
 }
