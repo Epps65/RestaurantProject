@@ -47,10 +47,17 @@ public class Main extends Application {
                 }
             }
 
-            // Initialize with some sample data
-            setTableStatus(0, 0, "Clean");
-            setTableStatus(0, 1, "Occupied");
-            setTableStatus(0, 2, "Dirty");
+            // --- Initialize ALL tables with a random status ---
+            String[] statuses = {"Clean", "Occupied", "Dirty"};
+            java.util.Random random = new java.util.Random();
+
+            for (int row = 0; row < ROWS; row++) {
+                for (int col = 0; col < COLS; col++) {
+                    // Assign a random status from the array
+                    String randomStatus = statuses[random.nextInt(statuses.length)];
+                    setTableStatus(row, col, randomStatus);
+                }
+            }
         }
 
         public void setTableStatus(int row, int col, String status) {
@@ -254,15 +261,128 @@ public class Main extends Application {
         });
 
         // Manager Dashboard
-        VBox managerPane = new VBox(10);
-        managerPane.setAlignment(Pos.CENTER);
-        Label managerLabel = new Label("Manager Dashboard");
-        Button viewReports = new Button("View Reports");
-        Button manageStaff = new Button("Manage Staff");
-        Button logoutManager = new Button("Logout");
+        TableGrid managerTableGrid = new TableGrid(); // Add the table grid
+        Button managerPunchButton = new Button("Punch");
+        Button managerLogoutButton = new Button("Log Out");
+        Button managerMenuButton = new Button("Manager Menu"); // Add Manager Menu button
+        Label managerStatusLabel = new Label("MANAGER");
 
-        managerPane.getChildren().addAll(managerLabel, viewReports, manageStaff, logoutManager);
-        Scene managerScene = new Scene(managerPane, 400, 300);
+        // Top bar for status, punch, logout
+        HBox managerTopBar = new HBox(10, managerStatusLabel, managerPunchButton, managerLogoutButton);
+        managerTopBar.setAlignment(Pos.CENTER_RIGHT);
+        managerTopBar.setPadding(new Insets(10));
+
+        // Bottom bar for Manager Menu button (adjust layout as needed)
+        HBox managerBottomBar = new HBox(managerMenuButton);
+        managerBottomBar.setAlignment(Pos.CENTER);
+        managerBottomBar.setPadding(new Insets(10, 0, 0, 0));
+
+        // Main pane for the manager screen
+        VBox managerPane = new VBox(10); // Renamed from original managerPane to avoid conflict if needed elsewhere
+        managerPane.getChildren().addAll(managerTopBar, managerTableGrid, managerBottomBar); // Add top bar, grid, and bottom bar
+        managerPane.setPadding(new Insets(20));
+
+
+        Scene managerScene = new Scene(managerPane, 800, 600);
+
+
+        // Add event handlers for new manager buttons
+        managerPunchButton.setOnAction(e -> {
+            if ("Punch".equals(managerPunchButton.getText())) {
+                managerPunchButton.setText("Clock Out");
+                managerStatusLabel.setText("MANAGER - Clocked In");
+            } else {
+                managerPunchButton.setText("Punch");
+                managerStatusLabel.setText("MANAGER - Clocked Out");
+            }
+        });
+
+        managerLogoutButton.setOnAction(e -> primaryStage.setScene(loginScene));
+
+        // --- Manager Menu Screen Definition ---
+        Label managerMenuTitle_scene = new Label("Manager Menu");
+        managerMenuTitle_scene.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;"); // Optional styling
+
+        Button salesAnalyticsButton_scene = new Button("Sales Analytics");
+        Button employeeAnalyticsButton_scene = new Button("Employee Analytics");
+        Button performanceAnalyticsButton_scene = new Button("Performance Analytics"); // Added Performance Analytics
+        Button employeeActionsButton_scene = new Button("Employee Actions");
+        Button managerMenuBackButton_scene = new Button("Back");
+
+        // Set preferred width for buttons for consistent look (optional)
+        double buttonWidth_scene = 200; // Adjusted width slightly
+        salesAnalyticsButton_scene.setPrefWidth(buttonWidth_scene);
+        employeeAnalyticsButton_scene.setPrefWidth(buttonWidth_scene);
+        performanceAnalyticsButton_scene.setPrefWidth(buttonWidth_scene);
+        employeeActionsButton_scene.setPrefWidth(buttonWidth_scene);
+        managerMenuBackButton_scene.setPrefWidth(buttonWidth_scene / 2);
+
+        VBox managerMenuPane_scene = new VBox(15); // Spacing between elements
+        managerMenuPane_scene.setAlignment(Pos.CENTER);
+        managerMenuPane_scene.setPadding(new Insets(30));
+        managerMenuPane_scene.getChildren().addAll(
+                managerMenuTitle_scene,
+                salesAnalyticsButton_scene,
+                employeeAnalyticsButton_scene,
+                performanceAnalyticsButton_scene,
+                employeeActionsButton_scene,
+                managerMenuBackButton_scene
+        );
+
+        Scene managerMenuScene = new Scene(managerMenuPane_scene, 400, 400);
+        managerMenuScene.getStylesheets().add(Main.class.getResource("Styles.css").toExternalForm());
+
+        //  Event Handlers for Manager Menu Buttons
+
+        managerMenuBackButton_scene.setOnAction(e -> primaryStage.setScene(managerScene));
+
+        // TODO: Replace these with navigation to the actual analytics/actions scenes
+        salesAnalyticsButton_scene.setOnAction(e -> {
+            System.out.println("Navigate to Sales Analytics");
+            // Example: primaryStage.setScene(createSalesAnalyticsScene(primaryStage, managerMenuScene));
+        });
+
+        employeeAnalyticsButton_scene.setOnAction(e -> {
+            System.out.println("Navigate to Employee Analytics");
+            // Example: primaryStage.setScene(createEmployeeAnalyticsScene(primaryStage, managerMenuScene));
+        });
+
+        performanceAnalyticsButton_scene.setOnAction(e -> {
+            System.out.println("Navigate to Performance Analytics");
+            // Example: primaryStage.setScene(createPerformanceAnalyticsScene(primaryStage, managerMenuScene));
+        });
+
+
+        employeeActionsButton_scene.setOnAction(e -> {
+            System.out.println("Navigate to Employee Actions");
+            // Example: primaryStage.setScene(createEmployeeActionsScene(primaryStage, managerMenuScene));
+        });
+
+
+
+
+
+        // Placeholder for Manager Menu action
+        managerMenuButton.setOnAction(e -> {
+            primaryStage.setScene(managerMenuScene);
+        });
+
+
+
+        // Set up table click handlers for Manager
+        for (int row = 0; row < 6; row++) {
+            for (int col = 0; col < 6; col++) {
+                Button table = managerTableGrid.getTableButton(row, col);
+                int finalRow = row;
+                int finalCol = col;
+                table.setOnAction(e -> {
+                    if ("Dirty".equals(table.getUserData())) {
+                        managerTableGrid.setTableStatus(finalRow, finalCol, "Clean");
+                    }
+                });
+            }
+        }
+
 
         // Busboy Screen
         TableGrid tableGrid1 = new TableGrid();
@@ -377,7 +497,6 @@ public class Main extends Application {
         backButton.setOnAction(e -> primaryStage.setScene(waiterScene));
         logoutButton.setOnAction(e -> primaryStage.setScene(loginScene));
         cookLogoutButton.setOnAction(e -> primaryStage.setScene(loginScene));
-        logoutManager.setOnAction(e -> primaryStage.setScene(loginScene));
         confirmOrder.setOnAction(e -> {
             if (!itemComboBox.getSelectionModel().isEmpty()) {
                 kitchenQueue.getItems().add(itemComboBox.getSelectionModel().getSelectedItem());
