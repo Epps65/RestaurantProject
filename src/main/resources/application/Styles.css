@@ -1,103 +1,245 @@
-/* Login Screen Styles */
-.label {
+/* --- Global Styles & Variables --- */
+.root {
+    /* Define base font and slightly larger size for better readability */
+    -fx-font-family: "System"; /* Uses the OS default font */
     -fx-font-size: 14px;
-    -fx-text-fill: #1d1d1f;
+    -fx-base: #F5F5F7; /* Base background color */
+    -fx-text-background-color: #333333; /* Default text color */
+    -fx-primary: #0A84FF; /* A slightly brighter, modern blue */
+    -fx-primary-hover: #3395FF;
+    -fx-primary-pressed: #0069D6;
+    -fx-secondary: #0A84FF; /* A secondary color for borders, etc. */
+    -fx-light-grey: #0A84FF; /* A color for borders/backgrounds */
+    -fx-success: #34C759; /* Green for clean tables */
+    -fx-warning: #FFCC00; /* Yellow for occupied tables */
+    -fx-danger: #FF3B30; /* Red for dirty tables */
 }
 
-#titleLabel {
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #1d1d1f;
-    -fx-padding: 0 0 20px 0;
+/* --- General Component Styling --- */
+.label {
+    -fx-font-size: 1em; /* Use relative size based on root */
+    -fx-text-fill: -fx-text-background-color;
+    -fx-padding: 2px; /* Add minimal padding for breathing room */
 }
 
 .text-field, .password-field {
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
-    -fx-border-color: #d2d2d7;
+    -fx-background-color: white;
+    -fx-background-radius: 8px; /* Slightly larger radius */
+    -fx-border-radius: 8px;
+    -fx-border-color: -fx-light-grey;
     -fx-border-width: 1px;
-    -fx-padding: 8px 12px;
-    -fx-font-size: 14px;
-    -fx-min-width: 200px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);
+    -fx-padding: 10px 14px; /* Increased padding */
+    -fx-font-size: 1em;
+    -fx-min-width: 220px; /* Slightly wider */
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -40%); /* Standard prompt text color */
+    -fx-effect: none; /* Remove default drop shadow for a flatter look */
+    -fx-border-insets: -1px; /* Ensure border doesn't make component jump on focus */
+    -fx-background-insets: 0;
 }
 
-#loginButton {
-    -fx-background-color: #0071e3;
+.text-field:focused, .password-field:focused {
+    -fx-border-color: -fx-primary;
+    -fx-border-width: 1.5px; /* Slightly thicker border on focus */
+    -fx-effect: dropshadow(gaussian, derive(-fx-primary, 70%), 4, 0, 0, 0);
+}
+
+/* General Button Styling */
+.button {
+    -fx-background-color: -fx-secondary; /* Default button color */
     -fx-text-fill: white;
-    -fx-background-radius: 6px;
-    -fx-padding: 10px 20px;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-min-width: 200px;
-    -fx-effect: dropshadow(gaussian, rgba(0,113,227,0.3), 4, 0, 0, 1);
-}
-
-#loginButton:hover {
-    -fx-background-color: #0077ed;
-}
-
-#loginButton:pressed {
-    -fx-background-color: #0062ba;
-}
-
-#loginPane {
-    -fx-background-color: #f5f5f7;
-    -fx-alignment: center;
-}
-
-/* Waiter Screen */
-#waiterPane {
-    -fx-background-color: #f5f5f7;
-}
-
-.table-button {
-    -fx-font-weight: bold;
-    -fx-font-size: 12px;
     -fx-background-radius: 8px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-border-radius: 8px;
+    -fx-padding: 10px 20px;
+    -fx-font-size: 1em;
+    -fx-font-weight: bold;
+    -fx-cursor: hand; /* Indicate interactivity */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1); /* Subtle shadow */
+    /* Smooth transitions for hover effects */
+    -fx-transition-property: background-color, -fx-effect;
+    -fx-transition-duration: 0.2s;
+    -fx-transition-timing-function: ease-in-out;
 }
 
-.table-button:hover {
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+.button:hover {
+    -fx-background-color: derive(-fx-secondary, -10%);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 5, 0, 0, 1.5);
 }
 
-#punchButton {
-    -fx-background-color: #0071e3;
+.button:pressed {
+    -fx-background-color: derive(-fx-secondary, -20%);
+    -fx-effect: none; /* Remove shadow when pressed */
+}
+
+/* Primary Action Button Style (e.g., Login, Send Order) */
+.button-primary, #loginButton, #sendOrderButton /* Add ID if needed */ {
+    -fx-background-color: -fx-primary;
     -fx-text-fill: white;
-    -fx-background-radius: 20px;
-    -fx-padding: 8px 16px;
-    -fx-font-weight: bold;
 }
 
-#logoutButton {
+.button-primary:hover, #loginButton:hover {
+    -fx-background-color: -fx-primary-hover;
+}
+
+.button-primary:pressed, #loginButton:pressed {
+    -fx-background-color: -fx-primary-pressed;
+}
+
+/* Secondary/Outline Button Style (e.g., Logout) */
+.button-outline, #logoutButton /* Add ID if needed */ {
     -fx-background-color: transparent;
-    -fx-text-fill: #0071e3;
-    -fx-border-color: #0071e3;
+    -fx-text-fill: -fx-primary;
+    -fx-border-color: -fx-primary;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px; /* Match background radius */
+    -fx-effect: none;
+}
+
+.button-outline:hover, #logoutButton:hover {
+    -fx-background-color: derive(-fx-primary, 90%); /* Very light blue background on hover */
+    -fx-text-fill: -fx-primary-hover;
+    -fx-border-color: -fx-primary-hover;
+    -fx-effect: none;
+}
+
+.button-outline:pressed, #logoutButton:pressed {
+    -fx-background-color: derive(-fx-primary, 80%);
+    -fx-text-fill: -fx-primary-pressed;
+    -fx-border-color: -fx-primary-pressed;
+    -fx-effect: none;
+}
+
+/* Styling for ComboBox */
+.combo-box {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: -fx-light-grey;
     -fx-border-width: 1px;
-    -fx-border-radius: 20px;
+    -fx-padding: 0; /* Padding is handled by the list cell */
+    -fx-font-size: 1em;
 }
 
-#statusLabel {
-    -fx-font-size: 18px;
+.combo-box .list-cell {
+    -fx-padding: 8px 12px; /* Padding inside dropdown items */
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: white;
+    -fx-border-color: -fx-light-grey;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3); /* Drop shadow for popup */
+}
+
+.combo-box-popup .list-view .list-cell:filled:hover {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: white;
+}
+
+.combo-box-base:focused {
+     -fx-border-color: -fx-primary;
+     -fx-border-width: 1.5px;
+}
+
+/* Styling for ListView */
+.list-view {
+    -fx-background-color: white;
+    -fx-border-color: -fx-light-grey;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px; /* Match border radius */
+}
+
+.list-view .list-cell {
+    -fx-padding: 10px 15px; /* Padding for list items */
+    -fx-background-color: transparent; /* Default transparent background */
+    -fx-border-color: transparent transparent -fx-light-grey transparent; /* Bottom border separator */
+    -fx-border-width: 0 0 1px 0;
+}
+
+.list-view .list-cell:filled:selected {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: white;
+    -fx-border-color: transparent; /* Remove border for selected */
+}
+
+.list-view .list-cell:filled:hover {
+    -fx-background-color: derive(-fx-base, -5%); /* Subtle hover effect */
+}
+
+.list-view .list-cell:empty {
+    -fx-background-color: transparent; /* Ensure empty cells are transparent */
+     -fx-border-width: 0;
+}
+
+/* --- Screen Specific Styles --- */
+
+/* Login Screen */
+#loginPane {
+    -fx-background-color: -fx-base;
+    -fx-alignment: center;
+    -fx-padding: 40px; /* Consistent padding */
+}
+
+#titleLabel {
+    -fx-font-size: 2em; /* Relative size */
     -fx-font-weight: bold;
-    -fx-padding: 0 10px 0 0;
+    -fx-text-fill: -fx-text-background-color; /* Use defined text color */
+    -fx-padding: 0 0 30px 0; /* More padding below title */
 }
 
-/* Busboy Specific Styles */
-#busboyPane {
-    -fx-background-color: #f5f5f7;
+/* Waiter/Busboy/Manager Panes */
+#waiterPane, #busboyPane, #managerPane, .kitchen-pane /* Add common style class or style VBox */ {
+    -fx-background-color: -fx-base;
+    -fx-padding: 20px; /* Consistent padding */
 }
+
+/* Table Grid Buttons (in TableGrid.java, but can add base style) */
+.table-grid .button { /* Target buttons inside a TableGrid */
+    -fx-font-weight: bold;
+    -fx-font-size: 0.9em;
+    -fx-background-radius: 8px;
+    -fx-min-width: 70px; /* Ensure buttons are large enough */
+    -fx-min-height: 70px;
+    -fx-text-alignment: center;
+    -fx-wrap-text: true; /* Allow text wrapping if needed */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);
+    -fx-transition-property: background-color, -fx-effect;
+    -fx-transition-duration: 0.2s;
+    -fx-transition-timing-function: ease-in-out;
+}
+
+.table-grid .button:hover {
+     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);
+     /* Consider adding a slight scale or brightness change on hover */
+}
+
+
+
+
+/* Status Labels (Top Bar) */
+#statusLabel, #busboyStatusLabel, #managerStatusLabel, .cook-status-label /* Add common class */ {
+    -fx-font-size: 1.3em;
+    -fx-font-weight: bold;
+    -fx-padding: 0 15px 0 0; /* More padding */
+    -fx-text-fill: -fx-secondary; /* Use secondary color for status */
+}
+
 
 #busboyStatusLabel {
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-    -fx-padding: 0 10px 0 0;
-    -fx-text-fill: #0071e3; /* Blue color to distinguish from waiter */
+    -fx-text-fill: -fx-primary;
 }
 
-/* Make dirty tables more visible for busboy */
-.button:dirty {
-    -fx-effect: dropshadow(gaussian, rgba(255,59,48,0.5), 10, 0, 0, 0);
+/* Punch/Clock Buttons */
+#punchButton, .punch-button
+
+     -fx-padding: 8px 16px;
 }
+
+/* Manager Menu Button */
+.manager-menu-button /* Add style class */ {
+    -fx-background-color: derive(-fx-secondary, -20%);
+}
+.manager-menu-button:hover {
+    -fx-background-color: derive(-fx-secondary, -30%);
+}
+
+
