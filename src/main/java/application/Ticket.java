@@ -1,3 +1,5 @@
+package application;
+
 public class Ticket {
     //tableID - id of the table that this ticket belongs to
     //Body - Content of ticket

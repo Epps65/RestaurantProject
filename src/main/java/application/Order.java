@@ -1,3 +1,5 @@
+package application;
+
 public class Order {
     //Direction - Indicates which seat the order is associated with (North, South, East, West, or N/A)
     //Name - Menu item name. Food items are named exactly as they appear on the menu

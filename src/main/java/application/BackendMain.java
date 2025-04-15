@@ -1,7 +1,9 @@
+package application;
+
 import java.io.*;
 import java.util.*;
 
-public class Main {
+public class BackendMain {
     public static Scanner myScanner = new Scanner(System.in);
     public static HashMap<String, Double> menu = new HashMap<>();
     public static ArrayList<Ticket> tableQueue = new ArrayList<>();
