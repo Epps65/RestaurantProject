@@ -1,5 +1,7 @@
 package application;
 
+//Testing if the push works instantly
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
