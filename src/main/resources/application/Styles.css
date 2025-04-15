@@ -220,7 +220,7 @@
     -fx-font-size: 1.3em;
     -fx-font-weight: bold;
     -fx-padding: 0 15px 0 0; /* More padding */
-    -fx-text-fill: -fx-secondary; /* Use secondary color for status */
+    -fx-text-fill:  -fx-text-background-color; /* Use secondary color for status */
 }
 
 
@@ -229,8 +229,7 @@
 }
 
 /* Punch/Clock Buttons */
-#punchButton, .punch-button
-
+#punchButton, .punch-button{
      -fx-padding: 8px 16px;
 }
 
