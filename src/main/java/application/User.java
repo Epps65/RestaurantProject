@@ -100,6 +100,8 @@ public class User {
             for(int i = 0; i < tables.size(); i++){
                 if(tables.get(i).getId().equals(tableID)){
                     tables.get(i).changeActive();
+                    char col = tableID.charAt(0);
+                    int row = Integer.parseInt(tableID.substring(1));
                 }
             }
 

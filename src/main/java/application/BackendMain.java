@@ -12,32 +12,33 @@ public class BackendMain {
         //------- Code is made with print statements as a mockup for frontend and is intended to be deleted later ------
 
         System.out.println("[BACKEND MOCKUP]");
-        File tableData = new File("TableData.txt");
-        Scanner reader = null;
+
         //tables is a central variable for this program, as it holds Table objects that are operated on
         ArrayList<Table> tables;
         makeMenu(menu);
 
 
         try{
+            CSVReader myReader = new CSVReader("tables.csv");
             //Reading data from TableData csv file and using it to setup the tables
             //All tables are initialized to clean and their unique Table ID
             //TODO: Initialize tables to active or inactive based on TableData csv
 
-            reader = new Scanner(tableData);
             tables = new ArrayList<>();
 
             for(int i = 0; i < 28; i++){
-                String temp = reader.nextLine();
-                String[] arr = temp.split(",");
-                tables.add(new Table("Clean", arr[0]));
+                String[] temp = myReader.getNextLine();
+                boolean exists = Boolean.parseBoolean(temp[2]);
+                boolean[] seats = new boolean[4];
+                for (int j = 0; j < 4; j++){
+                    seats[j] = Boolean.parseBoolean(temp[j + 3]);
+                }
+                if (exists){
+                    tables.add(new Table("Clean", temp[0] + temp[1], seats));
+                }
             }
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            if(reader != null){
-                reader.close();
-            }
         }
 
         int input;

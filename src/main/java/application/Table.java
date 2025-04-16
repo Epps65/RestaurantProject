@@ -11,12 +11,17 @@ public class Table {
     private String status;
     private ArrayList<Order> tableOrder;
     private String id;
+    private boolean hasN; private boolean hasE; private boolean hasS; private boolean hasW;
 
-    public Table(String status, String id){
+    public Table(String status, String id, boolean[] seats){
         active = true;
         this.status = status;
         tableOrder = new ArrayList<>();
         this.id = id;
+        this.hasN = seats[0];
+        this.hasE = seats[1];
+        this.hasS = seats[2];
+        this.hasW = seats[3];
     }
     //Sets active to the opposite of what it is as of when the method is called
     public void changeActive(){
