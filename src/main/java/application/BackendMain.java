@@ -259,22 +259,20 @@ public class BackendMain {
                     //Changes a table's active variable to TRUE if it is FALSE
                     System.out.println("Which table would you like to activate?");
                     tableID = myScanner.nextLine();
+                    myScanner.nextLine();
                     if(checkActive(tableID, tables)){
                         System.out.println("That table is already active.");
                     } else {
                         manager.setTableActivity(tableID);
                     }
-
+                    //Use writer
                     break;
                 case 1:
                     //Changes a table's active variable to FALSE if it is TRUE
                     System.out.println("Which table would you like to deactivate?");
                     tableID = myScanner.nextLine();
-                    if(!checkActive(tableID, tables)){
-                        System.out.println("That table is already inactive.");
-                    } else {
-                        manager.setTableActivity(tableID);
-                    }
+                    manager.setTableActivity(tableID);
+                    //Use writer
                     break;
             }
         } while(input != 2);
@@ -287,50 +285,20 @@ public class BackendMain {
         System.out.println("[COOK ACCESS]\n");
         int input;
 
-        //TODO: Change cookAccess so that the cook variable is used. Make methods in the User class that carry out what is written here
         do{
             printOptions("cook");
             input = myScanner.nextInt();
 
             switch(input){
                 case 0:
-                    if(tableQueue.isEmpty()){
-                        System.out.println("There are no tickets in queue.");
-                    } else {
-                        int count = 1;
-
-                        for(Ticket t : tableQueue){
-                            System.out.println(t.toString());
-                            count++;
-                            if(count == 3){
-                                break;
-                            }
-                        }
-                    }
+                    System.out.println(cook.viewRecentTickets(tableQueue));
                     break;
                 case 1:
-                    if(tableQueue.isEmpty()){
-                        System.out.println("There are no tickets in queue.");
-                    } else {
-                        int count = 1;
+                    System.out.println(cook.viewRecentTickets(tableQueue));
+                    System.out.println("Which item would you like to clear?");
+                    String clear = myScanner.nextLine();
 
-                        for(Ticket t : tableQueue){
-                            System.out.println(t.toString());
-                            count++;
-                            if(count == 3){
-                                break;
-                            }
-                        }
-                        System.out.println("Which item would you like to clear?");
-                        String clear = myScanner.nextLine();
-
-                        for(int i = 0; i < tableQueue.size(); i++){
-                            if(tableQueue.get(i).getBody().equals(clear)){
-                                tableQueue.remove(i);
-                                break;
-                            }
-                        }
-                    }
+                    cook.clearTicket(tableQueue, clear);
             }
 
         } while(input != 2);

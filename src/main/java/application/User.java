@@ -108,5 +108,33 @@ public class User {
         }
     }
 
+    public String viewRecentTickets(ArrayList<Ticket> tableQueue){
+        if(access.equals("Cook") || access.equals("Manager")){
+            String result = "";
+            if(tableQueue.isEmpty()){
+                return("There are no tickets in queue.");
+            } else {
+                int count = 1;
 
+                for(Ticket t : tableQueue){
+                    result += t.toString() + "\n";
+                    count++;
+                    if(count == 3){
+                        break;
+                    }
+                }
+                return result;
+            }
+        }
+        return "Invalid access.";
+    }
+
+    public void clearTicket(ArrayList<Ticket> tableQueue, String clear){
+        for(int i = 0; i < tableQueue.size(); i++){
+            if(tableQueue.get(i).getBody().equals(clear)){
+                tableQueue.remove(i);
+                break;
+            }
+        }
+    }
 }

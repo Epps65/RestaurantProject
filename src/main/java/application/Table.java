@@ -7,7 +7,7 @@ public class Table {
     //status - Assigns the table as clean, dirty, or occupied
     //tableOrder - ArrayList of Order objects
     //id - Unique id associated with a table
-    private boolean active = false;
+    private boolean active;
     private String status;
     private ArrayList<Order> tableOrder;
     private String id;
