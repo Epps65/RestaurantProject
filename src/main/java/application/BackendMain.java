@@ -1,5 +1,6 @@
 package application;
 
+import java.io.IOException;
 import java.util.*;
 
 public class BackendMain {
@@ -101,8 +102,8 @@ public class BackendMain {
                 break;
             case "manager":
                 System.out.println("As the manager, what would you like to do?");
-                System.out.println("0. Activate table");
-                System.out.println("1. Deactivate table");
+                System.out.println("0. Change table activity");
+                System.out.println("1. Change seat activity");
                 System.out.println("2. Quit to menu");
                 break;
             case "cook":
@@ -261,22 +262,23 @@ public class BackendMain {
             switch(input){
                 case 0:
                     //Changes a table's active variable to TRUE if it is FALSE
-                    System.out.println("Which table would you like to activate?");
+                    System.out.println("Which table's activity would you like to change?");
                     tableID = myScanner.nextLine();
                     myScanner.nextLine();
-                    if(checkActive(tableID, tables)){
-                        System.out.println("That table is already active.");
-                    } else {
-                        manager.setTableActivity(tableID);
+                    manager.setTableActivity(tableID);
+                    TableManager tableManager = new TableManager("tables.csv");
+                    try{
+                        tableManager.toggleStatus(tableID, 0);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
-                    //Use writer
                     break;
                 case 1:
-                    //Changes a table's active variable to FALSE if it is TRUE
-                    System.out.println("Which table would you like to deactivate?");
+                    System.out.println("Which table's seat do you want to change the activity of?");
                     tableID = myScanner.nextLine();
-                    manager.setTableActivity(tableID);
-                    //Use writer
+                    System.out.println("Which seat? (N, S, E, or W)");
+                    manager.setSeatActivity(tableID, myScanner.nextLine());
+
                     break;
             }
         } while(input != 2);

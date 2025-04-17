@@ -108,6 +108,15 @@ public class User {
         }
     }
 
+    public void setSeatActivity(String tableID, String seat){
+        if(access.equals("Manager")){
+            for(int i = 0; i < tables.size(); i++){
+                if(tables.get(i).equals(tableID){
+                    tables.get(i).changeSeatActivity(seat);
+                }
+            }
+        }
+    }
     public String viewRecentTickets(ArrayList<Ticket> tableQueue){
         if(access.equals("Cook") || access.equals("Manager")){
             String result = "";

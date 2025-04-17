@@ -32,6 +32,18 @@ public class Table {
         return active;
     }
 
+    public void changeSeatActivity(String seat){
+        if(seat.equals("N")){
+            hasN = !hasN;
+        } else if(seat.equals("E")){
+            hasE = !hasE;
+        } else if(seat.equals("S")){
+            hasS = !hasS;
+        } else {
+            hasW = !hasW;
+        }
+    }
+
     public void addTableOrder(String direction, String itemName, double itemPrice){
         if(status.equals("Clean")){
             status = "Occupied";
