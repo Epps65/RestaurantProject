@@ -10,7 +10,7 @@ public class BackendMain {
 
     public static void main(String[] args) {
         //------- Code is made with print statements as a mockup for frontend and is intended to be deleted later ------
-
+        
         System.out.println("[BACKEND MOCKUP]");
 
         //tables is a central variable for this program, as it holds Table objects that are operated on
