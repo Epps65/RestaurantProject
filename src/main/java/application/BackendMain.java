@@ -1,6 +1,6 @@
 package application;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.*;
 
 public class BackendMain {
@@ -19,22 +19,27 @@ public class BackendMain {
 
 
         try{
-            CSVReader myReader = new CSVReader("tables.csv");
+            TableManager myReader = new TableManager("tables.csv");
+            myReader.loadTables();
             //Reading data from TableData csv file and using it to setup the tables
             //All tables are initialized to clean and their unique Table ID
             //TODO: Initialize tables to active or inactive based on TableData csv
 
             tables = new ArrayList<>();
 
-            for(int i = 0; i < 28; i++){
-                String[] temp = myReader.getNextLine();
-                boolean exists = Boolean.parseBoolean(temp[2]);
-                boolean[] seats = new boolean[4];
-                for (int j = 0; j < 4; j++){
-                    seats[j] = Boolean.parseBoolean(temp[j + 3]);
-                }
-                if (exists){
-                    tables.add(new Table("Clean", temp[0] + temp[1], seats));
+            String[] keys = new String[]{"A1", "A2", "A3", "A4", "A5", "A6",
+                    "B1", "B2", "B3", "B4", "B5", "B6",
+                    "C5", "C6",
+                    "D5", "D6",
+                    "E1", "E2", "E3", "E4", "E5", "E6",
+                    "F1", "F2", "F3", "F4", "F5", "F6"};
+
+            for (String key : keys) {
+                boolean[] statuses = myReader.getStatus(key);
+                boolean exists = statuses[0];
+                boolean[] seats = new boolean[]{statuses[1], statuses[2], statuses[3],statuses[4]};
+                if (exists) {
+                    tables.add(new Table("Clean", key, seats));
                 }
             }
         } catch (Exception e) {
@@ -97,8 +102,8 @@ public class BackendMain {
                 break;
             case "manager":
                 System.out.println("As the manager, what would you like to do?");
-                System.out.println("0. Activate table");
-                System.out.println("1. Deactivate table");
+                System.out.println("0. Change table activity");
+                System.out.println("1. Change seat activity");
                 System.out.println("2. Quit to menu");
                 break;
             case "cook":
@@ -257,22 +262,23 @@ public class BackendMain {
             switch(input){
                 case 0:
                     //Changes a table's active variable to TRUE if it is FALSE
-                    System.out.println("Which table would you like to activate?");
+                    System.out.println("Which table's activity would you like to change?");
                     tableID = myScanner.nextLine();
                     myScanner.nextLine();
-                    if(checkActive(tableID, tables)){
-                        System.out.println("That table is already active.");
-                    } else {
-                        manager.setTableActivity(tableID);
+                    manager.setTableActivity(tableID);
+                    TableManager tableManager = new TableManager("tables.csv");
+                    try{
+                        tableManager.toggleStatus(tableID, 0);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
-                    //Use writer
                     break;
                 case 1:
-                    //Changes a table's active variable to FALSE if it is TRUE
-                    System.out.println("Which table would you like to deactivate?");
+                    System.out.println("Which table's seat do you want to change the activity of?");
                     tableID = myScanner.nextLine();
-                    manager.setTableActivity(tableID);
-                    //Use writer
+                    System.out.println("Which seat? (N, S, E, or W)");
+                    manager.setSeatActivity(tableID, myScanner.nextLine());
+
                     break;
             }
         } while(input != 2);
