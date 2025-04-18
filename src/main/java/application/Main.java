@@ -121,7 +121,7 @@ public class Main extends Application {
                     // Ensure table button exists before setting status
                     if (tables[row][col] != null) {
                         String randomStatus = statuses[random.nextInt(statuses.length)];
-                        setTableStatus(row, col, randomStatus);
+                        setTableStatus(row, col, "Clean");
                     }
                 }
             }
