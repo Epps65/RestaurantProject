@@ -15,6 +15,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -349,6 +350,33 @@ public class Main extends Application {
         waiterPane.setId("waiterPane");
         Scene waiterScene = new Scene(waiterPane, 800, 600);
 
+        // --- Employee Actions Screen
+        VBox employeeActionsPane = new VBox(15);
+        employeeActionsPane.setPadding(new Insets(30));
+        employeeActionsPane.setAlignment(Pos.CENTER);
+        employeeActionsPane.setId("employeeActionsPane");
+
+        Label employeeActionsTitle = new Label("Employee Actions");
+        employeeActionsTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        Button addNewEmployeeButton = new Button("Add New Employee");
+        Button viewEditEmployeeButton = new Button("View/Edit Employee Info");
+        Button employeeActionsBackButton = new Button("Back");
+
+        double employeeActionButtonWidth = 200;
+        addNewEmployeeButton.setPrefWidth(employeeActionButtonWidth);
+        viewEditEmployeeButton.setPrefWidth(employeeActionButtonWidth);
+        employeeActionsBackButton.setPrefWidth(employeeActionButtonWidth / 2);
+
+        employeeActionsPane.getChildren().addAll(
+                employeeActionsTitle,
+                addNewEmployeeButton,
+                viewEditEmployeeButton,
+                employeeActionsBackButton
+        );
+
+        Scene employeeActionsScene = new Scene(employeeActionsPane, 400, 300);
+
 
         // --- Order Management Screen  ---
         // Left Pane: Menu Categories and Items
@@ -369,7 +397,11 @@ public class Main extends Application {
         orderDetailsPane.setAlignment(Pos.TOP_CENTER); orderDetailsPane.setPadding(new Insets(15));
         orderDetailsPane.setStyle("-fx-border-color: lightgrey; -fx-border-width: 1;");
         Label checkLabel = new Label("Chk #1001"); checkLabel.setStyle("-fx-font-weight: bold;"); // Placeholder
-        tableLabel = new Label("Tbl: <Selected Table>"); tableLabel.setStyle("-fx-font-weight: bold;"); // Initialize field
+        if(Objects.equals(currentUserRole, waiterScene)){
+            tableLabel = new Label("Tbl: "+waiterTableGrid.getId()); tableLabel.setStyle("-fx-font-weight: bold;"); // Initialize field
+        } else{
+            tableLabel = new Label("Tbl: "+managerTableGrid.getId()); tableLabel.setStyle("-fx-font-weight: bold;"); // Initialize field
+        }
         Label serverLabel = new Label("Server: <Name>"); serverLabel.setStyle("-fx-font-weight: bold;"); // Placeholder
         ListView<String> orderItemsListView = new ListView<>(cartItems); // Binds to the cartItems list
         orderItemsListView.setPrefHeight(200);
@@ -721,6 +753,7 @@ public class Main extends Application {
                             waiterTableGrid.setTableStatusById(tableId, "Dirty");
                             busboyTableGrid.setTableStatusById(tableId, "Dirty");
                             orderQueue.remove(kitchenQueueListView.getSelectionModel().getSelectedItem());
+
                         }else{
                             String tableId = managerTableGrid.getTableId(finalRow, finalCol);
                             managerTableGrid.setTableStatusById(tableId, "Clean");
@@ -734,10 +767,13 @@ public class Main extends Application {
         }
         // Manager Menu Screen Handlers
         managerMenuBackButton_scene.setOnAction(e -> primaryStage.setScene(managerScene));
+        employeeActionsBackButton.setOnAction(e -> primaryStage.setScene(managerMenuScene));
         salesAnalyticsButton_scene.setOnAction(e -> System.out.println("Navigate to Sales Analytics")); // Placeholder
         employeeAnalyticsButton_scene.setOnAction(e -> System.out.println("Navigate to Employee Analytics")); // Placeholder
         performanceAnalyticsButton_scene.setOnAction(e -> System.out.println("Navigate to Performance Analytics")); // Placeholder
-        employeeActionsButton_scene.setOnAction(e -> System.out.println("Navigate to Employee Actions")); // Placeholder
+        employeeActionsButton_scene.setOnAction(e -> {
+            primaryStage.setScene(employeeActionsScene); // Navigate to Employee Actions screen
+        });
 
 
         // Busboy Screen Handlers
@@ -835,6 +871,8 @@ public class Main extends Application {
                 busboyScene.getStylesheets().add(cssPath);
                 waiterScene.getStylesheets().add(cssPath);
                 paymentScene.getStylesheets().add(cssPath);
+                employeeActionsScene.getStylesheets().add(cssPath);
+
             } else {
                 System.err.println("Warning: Styles.css not found. UI will use default styles.");
             }
