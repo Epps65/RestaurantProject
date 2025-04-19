@@ -21,6 +21,8 @@ public class Main extends Application {
 
     public ObservableList<String> cartItems = FXCollections.observableArrayList();
     public ObservableList<Order> orderQueue = FXCollections.observableArrayList();
+    public ObservableList<Order> KitchenOrders = FXCollections.observableArrayList();
+
     // Store completed/paid orders if needed later
     // public ObservableList<Order> completedOrders = FXCollections.observableArrayList();
     // Store which table's order is being paid
@@ -31,6 +33,8 @@ public class Main extends Application {
     public Label paymentTotalLabel; // For Payment Screen
     public ListView<String> paymentItemsListView; // For Payment Screen
     public Label orderTotalLabel; // For Order Screen Total
+    public Scene currentUserRole;
+
 
     // --- Order Class ---
     public static class Order {
@@ -227,7 +231,7 @@ public class Main extends Application {
         kitchenPane.setPadding(new Insets(15));
         Label kitchenTitleLabel = new Label("Incoming Orders");
         kitchenTitleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-        ListView<Order> kitchenQueueListView = new ListView<>(orderQueue);
+        ListView<Order> kitchenQueueListView = new ListView<>(KitchenOrders);
         kitchenQueueListView.setPrefHeight(150);
         Label selectedOrderLabel = new Label("Selected Order Items:");
         selectedOrderLabel.setStyle("-fx-font-weight: bold;");
@@ -419,8 +423,11 @@ public class Main extends Application {
         // Login Handler
         loginButton.setOnAction(e -> {
             String username = userField.getText(); String password = passField.getText();
-            if (username.equals("waiter") && password.equals("1234")) { primaryStage.setScene(waiterScene); }
-            else if (username.equals("manager") && password.equals("admin")) { primaryStage.setScene(managerScene); }
+            if (username.equals("waiter") && password.equals("1234")) {
+                primaryStage.setScene(waiterScene);
+                currentUserRole = waiterScene;}
+            else if (username.equals("manager") && password.equals("admin")) { primaryStage.setScene(managerScene);
+                currentUserRole = managerScene;}
             else if (username.equals("busboy") && password.equals("cleaner")) { primaryStage.setScene(busboyScene); }
             else if (username.equals("cook") && password.equals("kitchen")) { primaryStage.setScene(kitchenScene); }
             else { messageLabel.setText("Invalid credentials"); }
@@ -548,7 +555,8 @@ public class Main extends Application {
 
                 // Create a new Order object (calculates total internally)
                 Order newOrder = new Order(currentTableId, cartItems);
-                orderQueue.add(newOrder); // Add to kitchen queue
+                orderQueue.add(newOrder);
+                KitchenOrders.add(newOrder); // Add to kitchen queue
 
                 System.out.println("Order Sent: " + newOrder.getItems().size() + " items for " + newOrder.getTableId() + " Total: " + String.format("%.2f", newOrder.getTotal()));
 
@@ -559,7 +567,7 @@ public class Main extends Application {
 
                 cartItems.clear(); // Clear the temporary cart
                 orderTotalLabel.setText("Total: $0.00"); // Reset total label
-                primaryStage.setScene(waiterScene); // Go back to table view
+                primaryStage.setScene(currentUserRole); // Go back to table view
             } else {
                 // Alert if trying to send empty order
                 Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -584,7 +592,7 @@ public class Main extends Application {
             }
             cartItems.clear(); // Always clear cart when leaving this screen via Back button
             orderTotalLabel.setText("Total: $0.00"); // Reset total label
-            primaryStage.setScene(waiterScene);
+            primaryStage.setScene(currentUserRole);
         });
 
 
@@ -594,11 +602,12 @@ public class Main extends Application {
             Order selectedOrder = kitchenQueueListView.getSelectionModel().getSelectedItem();
             if (selectedOrder != null) {
                 String tableIdToMarkDirty = selectedOrder.getTableId();
-                // orderQueue.remove(selectedOrder); // Remove from kitchen queue
+                KitchenOrders.remove(selectedOrder);
+               // orderQueue.remove(selectedOrder); // Remove from kitchen queue
                 orderItemsDisplay.getItems().clear(); // Clear display
                 kitchenQueueListView.getSelectionModel().clearSelection(); // Deselect
                 // Add to completed orders list
-                // completedOrders.add(selectedOrder);
+                 // completedOrders.add(selectedOrder);
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING, "Please select an order from the list to mark as ready.");
                 alert.showAndWait();
@@ -633,16 +642,65 @@ public class Main extends Application {
                 if (table == null) continue;
                 int finalRow = row;
                 int finalCol = col;
+                final String currentTableId = managerTableGrid.getTableId(row, col); // Get ID here
+
                 table.setOnAction(e -> {
-                    if ("Dirty".equals(managerTableGrid.getTableStatus(finalRow, finalCol))) {
-                        // Manager cleans the table, update all grids
-                        String tableId = managerTableGrid.getTableId(finalRow, finalCol);
-                        managerTableGrid.setTableStatusById(tableId, "Clean");
-                        waiterTableGrid.setTableStatusById(tableId, "Clean");
-                        busboyTableGrid.setTableStatusById(tableId, "Clean");
+
+                    String status = managerTableGrid.getTableStatus(finalRow, finalCol);
+                    if (status == null) status = "Clean"; // Default if somehow null
+
+
+                    switch (status) {
+                        case "Clean":
+                            // Go to Order Screen to start a new order
+                            // Table status remains 'Clean' until order is sent
+                            tableLabel.setText(currentTableId); // Set table label on order screen
+                            cartItems.clear(); // Clear cart for the new order
+                            orderTotalLabel.setText("Total: $0.00"); // Reset total on order screen
+                            // Reset menu selections
+                            categoryComboBox.getSelectionModel().clearSelection();
+                            itemComboBox.getItems().clear();
+                            itemComboBox.setVisible(false);
+                            primaryStage.setScene(orderScene);
+                            break;
+
+                        case "Occupied":
+                            // Go to Payment Screen for this table's existing order
+                            Optional<Order> orderOpt = orderQueue.stream()
+                                    .filter(order -> order.getTableId().equals(currentTableId))
+                                    .findFirst();
+
+                            if (orderOpt.isPresent()) {
+                                currentOrderForPayment = orderOpt.get(); // Store the order being paid
+                                // Update payment screen labels and item list
+                                paymentTableLabel.setText("Table: " + currentOrderForPayment.getTableId());
+                                paymentTotalLabel.setText(String.format("Total: $%.2f", currentOrderForPayment.getTotal()));
+                                paymentItemsListView.getItems().setAll(currentOrderForPayment.getFormattedItemsWithPrices()); // Display items
+
+                                primaryStage.setScene(paymentScene); // Show payment screen
+                            } else {
+                                // Error: Table is 'Occupied' but no matching order found in queue
+                                System.err.println("Error: Occupied table " + currentTableId + " has no matching order in active queue.");
+                                Alert alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle("Order Not Found");
+                                alert.setHeaderText(null);
+                                alert.setContentText("Could not find the order details for table " + currentTableId + ".\nThe order might be completed or an error occurred.");
+                                alert.showAndWait();
+                            }
+                            break;
+
+                        case "Dirty":
+                            String tableId = managerTableGrid.getTableId(finalRow, finalCol);
+                            managerTableGrid.setTableStatusById(tableId, "Clean");
+                            waiterTableGrid.setTableStatusById(tableId, "Clean");
+                            busboyTableGrid.setTableStatusById(tableId, "Clean");
+
+                        default:
+                            System.out.println("Unhandled status clicked for table " + currentTableId + ": " + status);
+                            break;
                     }
-                    // Optional: Add other interactions for manager if needed
                 });
+
             }
         }
         // Manager Menu Screen Handlers
@@ -707,10 +765,8 @@ public class Main extends Application {
                 return;
             }
             System.out.println("Processing Cash Payment for " + currentOrderForPayment.getTableId());
-            // --- TODO: Implement actual cash payment logic ---
-
             // Simulate successful payment for now:
-            handleSuccessfulPayment(primaryStage, waiterScene, waiterTableGrid, managerTableGrid, busboyTableGrid);
+            handleSuccessfulPayment(primaryStage, currentUserRole, waiterTableGrid, managerTableGrid, busboyTableGrid);
         });
 
         cardButton.setOnAction(e -> {
@@ -721,7 +777,6 @@ public class Main extends Application {
                 return;
             }
             System.out.println("Processing Card Payment for " + currentOrderForPayment.getTableId());
-            // --- TODO: Implement actual card payment logic ---
             Alert processingAlert = new Alert(Alert.AlertType.INFORMATION, "Simulating card processing...");
             processingAlert.setTitle("Card Payment");
             processingAlert.setHeaderText(null);
@@ -729,13 +784,13 @@ public class Main extends Application {
 
             // Simulate successful payment for now:
             processingAlert.close(); // Close the "processing" alert
-            handleSuccessfulPayment(primaryStage, waiterScene, waiterTableGrid, managerTableGrid, busboyTableGrid);
+            handleSuccessfulPayment(primaryStage, currentUserRole, waiterTableGrid, managerTableGrid, busboyTableGrid);
             // ---
         });
 
         paymentBackButton.setOnAction(e -> {
             currentOrderForPayment = null; // Clear the temporary order reference
-            primaryStage.setScene(waiterScene);
+            primaryStage.setScene(currentUserRole);
         });
 
 
@@ -765,7 +820,7 @@ public class Main extends Application {
 
 
     // --- Helper method for post-payment actions ---
-    public void handleSuccessfulPayment(Stage primaryStage, Scene waiterScene, TableGrid waiterGrid, TableGrid managerGrid, TableGrid busboyGrid) {
+    public void handleSuccessfulPayment(Stage primaryStage, Scene returnScene, TableGrid waiterGrid, TableGrid managerGrid, TableGrid busboyGrid) {
         if (currentOrderForPayment != null) {
             String paidTableId = currentOrderForPayment.getTableId();
             System.out.println("Payment successful for " + paidTableId);
@@ -786,13 +841,13 @@ public class Main extends Application {
             alert.showAndWait(); // Wait for user to close
 
             currentOrderForPayment = null; // Clear the order reference
-            primaryStage.setScene(waiterScene); // Return to table view
+            primaryStage.setScene(returnScene); // Return to table view
         } else {
             // Should not happen if payment buttons correctly check currentOrderForPayment
             System.err.println("Error: handleSuccessfulPayment called unexpectedly with no currentOrderForPayment.");
             Alert alert = new Alert(Alert.AlertType.ERROR, "An internal error occurred during payment processing.");
             alert.showAndWait();
-            primaryStage.setScene(waiterScene); // Go back anyway
+            primaryStage.setScene(currentUserRole);
         }
     }
 

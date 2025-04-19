@@ -111,7 +111,7 @@ public class User {
     public void setSeatActivity(String tableID, String seat){
         if(access.equals("Manager")){
             for(int i = 0; i < tables.size(); i++){
-                if(tables.get(i).equals(tableID){
+                if(tables.get(i).equals(tableID)){
                     tables.get(i).changeSeatActivity(seat);
                 }
             }
