@@ -11,7 +11,8 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -644,60 +645,88 @@ public class Main extends Application {
                 int finalCol = col;
                 final String currentTableId = managerTableGrid.getTableId(row, col); // Get ID here
 
-                table.setOnAction(e -> {
 
-                    String status = managerTableGrid.getTableStatus(finalRow, finalCol);
-                    if (status == null) status = "Clean"; // Default if somehow null
+                table.setOnMouseClicked(e -> {
+                    if (e.getButton() == MouseButton.PRIMARY) {
+
+                        String status = managerTableGrid.getTableStatus(finalRow, finalCol);
+                        if (status == null) status = "Clean"; // Default if somehow null
 
 
-                    switch (status) {
-                        case "Clean":
-                            // Go to Order Screen to start a new order
-                            // Table status remains 'Clean' until order is sent
-                            tableLabel.setText(currentTableId); // Set table label on order screen
-                            cartItems.clear(); // Clear cart for the new order
-                            orderTotalLabel.setText("Total: $0.00"); // Reset total on order screen
-                            // Reset menu selections
-                            categoryComboBox.getSelectionModel().clearSelection();
-                            itemComboBox.getItems().clear();
-                            itemComboBox.setVisible(false);
-                            primaryStage.setScene(orderScene);
-                            break;
+                        switch (status) {
+                            case "Clean":
+                                // Go to Order Screen to start a new order
+                                // Table status remains 'Clean' until order is sent
+                                tableLabel.setText(currentTableId); // Set table label on order screen
+                                cartItems.clear(); // Clear cart for the new order
+                                orderTotalLabel.setText("Total: $0.00"); // Reset total on order screen
+                                // Reset menu selections
+                                categoryComboBox.getSelectionModel().clearSelection();
+                                itemComboBox.getItems().clear();
+                                itemComboBox.setVisible(false);
+                                primaryStage.setScene(orderScene);
+                                break;
 
-                        case "Occupied":
-                            // Go to Payment Screen for this table's existing order
-                            Optional<Order> orderOpt = orderQueue.stream()
-                                    .filter(order -> order.getTableId().equals(currentTableId))
-                                    .findFirst();
+                            case "Occupied":
+                                // Go to Payment Screen for this table's existing order
+                                Optional<Order> orderOpt = orderQueue.stream()
+                                        .filter(order -> order.getTableId().equals(currentTableId))
+                                        .findFirst();
 
-                            if (orderOpt.isPresent()) {
-                                currentOrderForPayment = orderOpt.get(); // Store the order being paid
-                                // Update payment screen labels and item list
-                                paymentTableLabel.setText("Table: " + currentOrderForPayment.getTableId());
-                                paymentTotalLabel.setText(String.format("Total: $%.2f", currentOrderForPayment.getTotal()));
-                                paymentItemsListView.getItems().setAll(currentOrderForPayment.getFormattedItemsWithPrices()); // Display items
+                                if (orderOpt.isPresent()) {
+                                    currentOrderForPayment = orderOpt.get(); // Store the order being paid
+                                    // Update payment screen labels and item list
+                                    paymentTableLabel.setText("Table: " + currentOrderForPayment.getTableId());
+                                    paymentTotalLabel.setText(String.format("Total: $%.2f", currentOrderForPayment.getTotal()));
+                                    paymentItemsListView.getItems().setAll(currentOrderForPayment.getFormattedItemsWithPrices()); // Display items
 
-                                primaryStage.setScene(paymentScene); // Show payment screen
-                            } else {
-                                // Error: Table is 'Occupied' but no matching order found in queue
-                                System.err.println("Error: Occupied table " + currentTableId + " has no matching order in active queue.");
-                                Alert alert = new Alert(Alert.AlertType.ERROR);
-                                alert.setTitle("Order Not Found");
-                                alert.setHeaderText(null);
-                                alert.setContentText("Could not find the order details for table " + currentTableId + ".\nThe order might be completed or an error occurred.");
-                                alert.showAndWait();
-                            }
-                            break;
+                                    primaryStage.setScene(paymentScene); // Show payment screen
+                                } else {
+                                    // Error: Table is 'Occupied' but no matching order found in queue
+                                    System.err.println("Error: Occupied table " + currentTableId + " has no matching order in active queue.");
+                                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                                    alert.setTitle("Order Not Found");
+                                    alert.setHeaderText(null);
+                                    alert.setContentText("Could not find the order details for table " + currentTableId + ".\nThe order might be completed or an error occurred.");
+                                    alert.showAndWait();
+                                }
+                                break;
 
-                        case "Dirty":
+                            case "Dirty":
+                                String tableId = managerTableGrid.getTableId(finalRow, finalCol);
+                                managerTableGrid.setTableStatusById(tableId, "Clean");
+                                waiterTableGrid.setTableStatusById(tableId, "Clean");
+                                busboyTableGrid.setTableStatusById(tableId, "Clean");
+
+                            default:
+                                System.out.println("Unhandled status clicked for table " + currentTableId + ": " + status);
+                                break;
+                        }
+                    }else if (e.getButton() == MouseButton.SECONDARY) {
+                        String status = managerTableGrid.getTableStatus(finalRow, finalCol);
+
+                        if (status == "Clean") {
+                            String tableId = managerTableGrid.getTableId(finalRow, finalCol);
+                            managerTableGrid.setTableStatusById(tableId, "Occupied");
+                            waiterTableGrid.setTableStatusById(tableId, "Occupied");
+                            busboyTableGrid.setTableStatusById(tableId, "Occupied");
+                        }else if(status == "Dirty"){
+                            String tableId = managerTableGrid.getTableId(finalRow, finalCol);
+                            managerTableGrid.setTableStatusById(tableId, "Inactive");
+                            waiterTableGrid.setTableStatusById(tableId, "Inactive");
+                            busboyTableGrid.setTableStatusById(tableId, "Inactive");
+                        }else if(status=="Occupied"){
+                            String tableId = managerTableGrid.getTableId(finalRow, finalCol);
+                            managerTableGrid.setTableStatusById(tableId, "Dirty");
+                            waiterTableGrid.setTableStatusById(tableId, "Dirty");
+                            busboyTableGrid.setTableStatusById(tableId, "Dirty");
+                            orderQueue.remove(kitchenQueueListView.getSelectionModel().getSelectedItem());
+                        }else{
                             String tableId = managerTableGrid.getTableId(finalRow, finalCol);
                             managerTableGrid.setTableStatusById(tableId, "Clean");
                             waiterTableGrid.setTableStatusById(tableId, "Clean");
                             busboyTableGrid.setTableStatusById(tableId, "Clean");
-
-                        default:
-                            System.out.println("Unhandled status clicked for table " + currentTableId + ": " + status);
-                            break;
+                        }
                     }
                 });
 
