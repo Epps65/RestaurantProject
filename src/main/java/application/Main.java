@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 public class Main extends Application {
@@ -28,7 +29,8 @@ public class Main extends Application {
     // Store completed/paid orders if needed later
     // public ObservableList<Order> completedOrders = FXCollections.observableArrayList();
     // Store which table's order is being paid
-    public Order currentOrderForPayment = null;
+    public String currentOrderForPayment = null;
+    public String currentTableIdForPaymentOrAdd = null;
 
     public Label tableLabel; // For Order Screen
     public Label paymentTableLabel; // For Payment Screen
@@ -40,7 +42,7 @@ public class Main extends Application {
 
     // --- Order Class ---
     public static class Order {
-        public final String tableId;
+        public String tableId;
         public final List<String> items;
         public double total; // Store calculated total
 
@@ -56,6 +58,13 @@ public class Main extends Application {
             return items; }
         public double getTotal() {
             return total; } // Getter for total
+
+        // Method to update the order with new items and recalculate total
+        public void updateOrder(List<String> newItems) {
+            this.items.clear();
+            this.items.addAll(newItems);
+            this.total = calculateTotal(this.items);
+        }
 
         // Helper method to parse price and calculate total
         public static double calculateTotal(List<String> items) {
@@ -440,7 +449,9 @@ public class Main extends Application {
         paymentItemsListView.setPrefHeight(150);
         Button cashButton = new Button("Cash"); cashButton.setMinWidth(100);
         Button cardButton = new Button("Card"); cardButton.setMinWidth(100);
-        HBox paymentMethodBox = new HBox(20, cashButton, cardButton); paymentMethodBox.setAlignment(Pos.CENTER);
+        Button addToOrderButton = new Button("Add to Order");
+        addToOrderButton.setMinWidth(100);
+        HBox paymentMethodBox = new HBox(20, cashButton, cardButton, addToOrderButton); paymentMethodBox.setAlignment(Pos.CENTER);
         Button paymentBackButton = new Button("Back to Tables");
 
         paymentPane.getChildren().addAll(
@@ -498,19 +509,29 @@ public class Main extends Application {
                             break;
 
                         case "Occupied":
+
+                            currentOrderForPayment = currentTableId;
                             // Go to Payment Screen for this table's existing order
-                            Optional<Order> orderOpt = orderQueue.stream()
+                            List <Order> orderOpt = orderQueue.stream()
                                     .filter(order -> order.getTableId().equals(currentTableId))
-                                    .findFirst();
+                                    .collect(Collectors.toList());;
 
-                            if (orderOpt.isPresent()) {
-                                currentOrderForPayment = orderOpt.get(); // Store the order being paid
-                                // Update payment screen labels and item list
-                                paymentTableLabel.setText("Table: " + currentOrderForPayment.getTableId());
-                                paymentTotalLabel.setText(String.format("Total: $%.2f", currentOrderForPayment.getTotal()));
-                                paymentItemsListView.getItems().setAll(currentOrderForPayment.getFormattedItemsWithPrices()); // Display items
+                            if (!orderOpt.isEmpty()) {
+                                // Aggregate items and calculate total from ALL found orders
+                                List<String> combinedItems = new ArrayList<>();
+                                double combinedTotal = 0.0;
+                                for(Order order : orderOpt) { // Loop through each order found
+                                    combinedItems.addAll(order.getFormattedItemsWithPrices()); // Add its items
+                                    combinedTotal += order.getTotal(); // Add its total
+                                }
 
-                                primaryStage.setScene(paymentScene); // Show payment screen
+                                // Update payment screen labels and item list WITH COMBINED DATA
+                                paymentTableLabel.setText("Table: " + currentTableId);
+                                paymentTotalLabel.setText(String.format("Total: $%.2f", combinedTotal));
+                                paymentItemsListView.getItems().setAll(combinedItems); // Display combined items list
+
+                                currentUserRole = waiterScene;
+                                primaryStage.setScene(paymentScene);
                             } else {
                                 // Error: Table is 'Occupied' but no matching order found in queue
                                 System.err.println("Error: Occupied table " + currentTableId + " has no matching order in active queue.");
@@ -538,6 +559,32 @@ public class Main extends Application {
                 });
             }
         }
+
+        // Add to Order button on Payment Screen
+        // Add to Order button on Payment Screen
+        addToOrderButton.setOnAction(e -> {
+            // --- REVISED: Go back to Order Screen, CLEARING the cart for the next send ---
+            if (currentOrderForPayment != null) {
+                tableLabel.setText(currentOrderForPayment); // Set table label on order screen
+
+                // *** Clear the cartItems for the new order entry ***
+                cartItems.clear();
+                orderTotalLabel.setText("Total: $0.00"); // Reset total label
+
+                // Reset menu selections (optional but good practice)
+                categoryComboBox.getSelectionModel().clearSelection();
+                itemComboBox.getItems().clear();
+                itemComboBox.setVisible(false);
+
+                primaryStage.setScene(orderScene); // Go back to order screen
+            } else {
+                // Should not happen if button is only reachable when a table was selected
+                System.err.println("Error: Add to Order clicked with no table context.");
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Cannot add to order. No table selected.");
+                alert.showAndWait();
+                primaryStage.setScene(currentUserRole); // Go back to table view
+            }
+        });
 
 
         // Order Screen Handlers
@@ -571,7 +618,6 @@ public class Main extends Application {
             }
         });
 
-        // Listener to update total dynamically if items are removed from cartItems (e.g., via ListView interaction)
         cartItems.addListener((javafx.collections.ListChangeListener.Change<? extends String> c) -> {
             orderTotalLabel.setText(String.format("Total: $%.2f", Order.calculateTotal(cartItems)));
         });
@@ -700,19 +746,28 @@ public class Main extends Application {
                                 break;
 
                             case "Occupied":
+                                currentOrderForPayment = currentTableId;
                                 // Go to Payment Screen for this table's existing order
-                                Optional<Order> orderOpt = orderQueue.stream()
+                                List <Order> orderOpt = orderQueue.stream()
                                         .filter(order -> order.getTableId().equals(currentTableId))
-                                        .findFirst();
+                                        .collect(Collectors.toList());;
 
-                                if (orderOpt.isPresent()) {
-                                    currentOrderForPayment = orderOpt.get(); // Store the order being paid
-                                    // Update payment screen labels and item list
-                                    paymentTableLabel.setText("Table: " + currentOrderForPayment.getTableId());
-                                    paymentTotalLabel.setText(String.format("Total: $%.2f", currentOrderForPayment.getTotal()));
-                                    paymentItemsListView.getItems().setAll(currentOrderForPayment.getFormattedItemsWithPrices()); // Display items
+                                if (!orderOpt.isEmpty()) {
+                                    // Aggregate items and calculate total from ALL found orders
+                                    List<String> combinedItems = new ArrayList<>();
+                                    double combinedTotal = 0.0;
+                                    for(Order order : orderOpt) { // Loop through each order found
+                                        combinedItems.addAll(order.getFormattedItemsWithPrices()); // Add its items
+                                        combinedTotal += order.getTotal(); // Add its total
+                                    }
 
-                                    primaryStage.setScene(paymentScene); // Show payment screen
+                                    // Update payment screen labels and item list WITH COMBINED DATA
+                                    paymentTableLabel.setText("Table: " + currentTableId);
+                                    paymentTotalLabel.setText(String.format("Total: $%.2f", combinedTotal));
+                                    paymentItemsListView.getItems().setAll(combinedItems); // Display combined items list
+
+                                    currentUserRole = managerScene;
+                                    primaryStage.setScene(paymentScene);
                                 } else {
                                     // Error: Table is 'Occupied' but no matching order found in queue
                                     System.err.println("Error: Occupied table " + currentTableId + " has no matching order in active queue.");
@@ -829,7 +884,7 @@ public class Main extends Application {
                 alert.showAndWait();
                 return;
             }
-            System.out.println("Processing Cash Payment for " + currentOrderForPayment.getTableId());
+            System.out.println("Processing Cash Payment for " + currentOrderForPayment);
             // Simulate successful payment for now:
             handleSuccessfulPayment(primaryStage, currentUserRole, waiterTableGrid, managerTableGrid, busboyTableGrid);
         });
@@ -841,7 +896,7 @@ public class Main extends Application {
                 alert.showAndWait();
                 return;
             }
-            System.out.println("Processing Card Payment for " + currentOrderForPayment.getTableId());
+            System.out.println("Processing Card Payment for " + currentOrderForPayment);
             Alert processingAlert = new Alert(Alert.AlertType.INFORMATION, "Simulating card processing...");
             processingAlert.setTitle("Card Payment");
             processingAlert.setHeaderText(null);
@@ -889,7 +944,7 @@ public class Main extends Application {
     // --- Helper method for post-payment actions ---
     public void handleSuccessfulPayment(Stage primaryStage, Scene returnScene, TableGrid waiterGrid, TableGrid managerGrid, TableGrid busboyGrid) {
         if (currentOrderForPayment != null) {
-            String paidTableId = currentOrderForPayment.getTableId();
+            String paidTableId = currentOrderForPayment;
             System.out.println("Payment successful for " + paidTableId);
 
             orderQueue.remove(currentOrderForPayment);
