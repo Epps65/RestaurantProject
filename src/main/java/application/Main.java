@@ -313,6 +313,54 @@ public class Main extends Application {
         managerMenuPane_scene.setPadding(new Insets(30));
         Scene managerMenuScene = new Scene(managerMenuPane_scene, 400, 400);
 
+        // --- Manager add employee Screen ---
+        VBox addNewEmployeePane = new VBox(15);
+        addNewEmployeePane.setPadding(new Insets(30));
+        addNewEmployeePane.setAlignment(Pos.CENTER);
+        addNewEmployeePane.setId("addNewEmployeePane");
+
+        Label addNewEmployeeTitle = new Label("Add New Employee");
+        addNewEmployeeTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        GridPane inputGrid = new GridPane();
+        inputGrid.setAlignment(Pos.CENTER);
+        inputGrid.setHgap(10);
+        inputGrid.setVgap(10);
+
+        Label firstNameLabel = new Label("First Name:");
+        TextField firstNameField = new TextField();
+        inputGrid.add(firstNameLabel, 0, 0);
+        inputGrid.add(firstNameField, 1, 0);
+
+        Label lastNameLabel = new Label("Last Name:");
+        TextField lastNameField = new TextField();
+        inputGrid.add(lastNameLabel, 0, 1);
+        inputGrid.add(lastNameField, 1, 1);
+
+        Label roleLabel = new Label("Role:");
+        ComboBox<String> roleComboBox = new ComboBox<>();
+        roleComboBox.getItems().addAll("Waiter", "Busboy", "Manager", "Cook");
+        roleComboBox.setPromptText("Select Role");
+        inputGrid.add(roleLabel, 0, 2);
+        inputGrid.add(roleComboBox, 1, 2);
+
+// Action Buttons for the Add Employee scene
+        Button saveEmployeeButton = new Button("Save Employee");
+        Button addEmployeeBackButton = new Button("Back");
+
+        HBox addEmployeeButtonBox = new HBox(10, saveEmployeeButton, addEmployeeBackButton);
+        addEmployeeButtonBox.setAlignment(Pos.CENTER);
+
+        addNewEmployeePane.getChildren().addAll(
+                addNewEmployeeTitle,
+                inputGrid,
+                addEmployeeButtonBox
+        );
+
+        Scene addNewEmployeeScene = new Scene(addNewEmployeePane, 450, 350);
+
+
+
         // --- Busboy Screen ---
         TableGrid busboyTableGrid = new TableGrid();
         Button busboyPunchButton = new Button("Punch");
@@ -480,6 +528,51 @@ public class Main extends Application {
             passField.clear();
         });
 
+        addNewEmployeeButton.setOnAction(e -> {
+            primaryStage.setScene(addNewEmployeeScene);
+        });
+
+        saveEmployeeButton.setOnAction(saveEvent -> {
+            String firstName = firstNameField.getText();
+            String lastName = lastNameField.getText();
+            String role = roleComboBox.getValue();
+
+            if (firstName == null || firstName.trim().isEmpty() ||
+                    lastName == null || lastName.trim().isEmpty() ||
+                    role == null) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Please fill in all employee details.");
+                alert.showAndWait();
+            } else {
+
+                //Todo save it to the database
+                System.out.println("--- Saving New Employee ---");
+                System.out.println("First Name: " + firstName.trim());
+                System.out.println("Last Name: " + lastName.trim());
+                System.out.println("Role: " + role);
+                System.out.println("--------------------------");
+
+
+                // Clear the input fields after successful save
+                firstNameField.clear();
+                lastNameField.clear();
+                roleComboBox.getSelectionModel().clearSelection();
+
+                // Show confirmation and return to the previous screen
+                Alert confirmation = new Alert(Alert.AlertType.INFORMATION, "Employee '" + firstName.trim() + " " + lastName.trim() + "' added successfully!");
+                confirmation.showAndWait();
+
+                primaryStage.setScene(employeeActionsScene); // Go back to Employee Actions
+            }
+        });
+
+        addEmployeeBackButton.setOnAction(backEvent -> {
+            firstNameField.clear();
+            lastNameField.clear();
+            roleComboBox.getSelectionModel().clearSelection();
+            primaryStage.setScene(employeeActionsScene);
+        });
+
+
         // Waiter Screen Table Click Handler
         for (int row = 0; row < TableGrid.ROWS; row++) {
             for (int col = 0; col < TableGrid.COLS; col++) {
@@ -563,7 +656,6 @@ public class Main extends Application {
         // Add to Order button on Payment Screen
         // Add to Order button on Payment Screen
         addToOrderButton.setOnAction(e -> {
-            // --- REVISED: Go back to Order Screen, CLEARING the cart for the next send ---
             if (currentOrderForPayment != null) {
                 tableLabel.setText(currentOrderForPayment); // Set table label on order screen
 
@@ -927,6 +1019,7 @@ public class Main extends Application {
                 waiterScene.getStylesheets().add(cssPath);
                 paymentScene.getStylesheets().add(cssPath);
                 employeeActionsScene.getStylesheets().add(cssPath);
+                addNewEmployeeScene.getStylesheets().add(cssPath);
 
             } else {
                 System.err.println("Warning: Styles.css not found. UI will use default styles.");
