@@ -38,6 +38,7 @@ public class Main extends Application {
     public ListView<String> paymentItemsListView; // For Payment Screen
     public Label orderTotalLabel; // For Order Screen Total
     public Scene currentUserRole;
+    public Scene currentOrderScreen;
 
 
     // --- Order Class ---
@@ -668,6 +669,8 @@ public class Main extends Application {
                 itemComboBox.getItems().clear();
                 itemComboBox.setVisible(false);
 
+                currentOrderScreen = paymentScene;
+
                 primaryStage.setScene(orderScene); // Go back to order screen
             } else {
                 // Should not happen if button is only reachable when a table was selected
@@ -756,14 +759,15 @@ public class Main extends Application {
             String currentTableId = tableLabel.getText();
             // If a valid table was being worked on, ensure it's set back to Clean
             // as the order was not sent.
-            if (currentTableId != null && !currentTableId.equals("Tbl: <Selected Table>")) {
-                waiterTableGrid.setTableStatusById(currentTableId, "Clean");
-                managerTableGrid.setTableStatusById(currentTableId, "Clean");
-                busboyTableGrid.setTableStatusById(currentTableId, "Clean");
-            }
+//            if (currentTableId != null && !currentTableId.equals("Tbl: <Selected Table>")) {
+//                waiterTableGrid.setTableStatusById(currentTableId, "Clean");
+//                managerTableGrid.setTableStatusById(currentTableId, "Clean");
+//                busboyTableGrid.setTableStatusById(currentTableId, "Clean");
+//            }
             cartItems.clear(); // Always clear cart when leaving this screen via Back button
             orderTotalLabel.setText("Total: $0.00"); // Reset total label
-            primaryStage.setScene(currentUserRole);
+            primaryStage.setScene(currentOrderScreen);
+            currentOrderScreen = currentUserRole;
         });
 
 
