@@ -27,7 +27,7 @@ public class Main extends Application {
     public ObservableList<Order> KitchenOrders = FXCollections.observableArrayList();
 
     // Store completed/paid orders if needed later
-    // public ObservableList<Order> completedOrders = FXCollections.observableArrayList();
+    public ObservableList<Order> completedOrders = FXCollections.observableArrayList();
     // Store which table's order is being paid
     public String currentOrderForPayment = null;
     public String currentTableIdForPaymentOrAdd = null;
@@ -89,10 +89,14 @@ public class Main extends Application {
             return new ArrayList<>(items);
         }
 
+
+
         @Override
         public String toString() {
             // Controls how the Order appears in the main kitchen queue ListView
-            return tableId + " (" + items.size() + " item" + (items.size() != 1 ? "s" : "") + ")";
+            // AND in the completed orders list view
+            return String.format("Table: %s | Items: %d | Total: $%.2f",
+                    tableId, items.size(), total);
         }
     }
 
@@ -435,6 +439,41 @@ public class Main extends Application {
 
         Scene employeeActionsScene = new Scene(employeeActionsPane, 400, 300);
 
+        //  ---- Completed Orders Scene ----
+
+        VBox completedOrdersPane = new VBox(15);
+        completedOrdersPane.setPadding(new Insets(20));
+        completedOrdersPane.setAlignment(Pos.CENTER);
+        Label completedOrdersTitle = new Label("Completed Orders");
+        completedOrdersTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        ListView<Order> completedOrdersListView = new ListView<>(completedOrders); // Bind to the list
+        completedOrdersListView.setPrefHeight(300);
+
+// Add a label to show total sales from completed orders
+        Label totalCompletedSalesLabel = new Label("Total Sales: $0.00");
+        totalCompletedSalesLabel.setStyle("-fx-font-weight: bold;");
+// Update total sales whenever the list changes
+        completedOrders.addListener((javafx.collections.ListChangeListener.Change<? extends Order> c) -> {
+            double totalSales = 0.0;
+            for (Order order : completedOrders) {
+                totalSales += order.getTotal();
+            }
+            totalCompletedSalesLabel.setText(String.format("Total Sales: $%.2f", totalSales));
+        });
+
+
+        Button completedOrdersBackButton = new Button("Back to Manager Menu");
+        completedOrdersBackButton.setPrefWidth(200);
+
+        completedOrdersPane.getChildren().addAll(
+                completedOrdersTitle,
+                completedOrdersListView,
+                totalCompletedSalesLabel, // Add total sales label
+                completedOrdersBackButton
+        );
+        Scene completedOrdersScene = new Scene(completedOrdersPane, 500, 450);
+
 
         // --- Order Management Screen  ---
         // Left Pane: Menu Categories and Items
@@ -531,6 +570,16 @@ public class Main extends Application {
 
         addNewEmployeeButton.setOnAction(e -> {
             primaryStage.setScene(addNewEmployeeScene);
+        });
+
+
+
+        salesAnalyticsButton_scene.setOnAction(e -> {
+            primaryStage.setScene(completedOrdersScene);
+        });
+
+        completedOrdersBackButton.setOnAction(e -> {
+            primaryStage.setScene(managerMenuScene);
         });
 
         saveEmployeeButton.setOnAction(saveEvent -> {
@@ -782,7 +831,7 @@ public class Main extends Application {
                 orderItemsDisplay.getItems().clear(); // Clear display
                 kitchenQueueListView.getSelectionModel().clearSelection(); // Deselect
                 // Add to completed orders list
-                 // completedOrders.add(selectedOrder);
+                  completedOrders.add(selectedOrder);
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING, "Please select an order from the list to mark as ready.");
                 alert.showAndWait();
@@ -919,7 +968,6 @@ public class Main extends Application {
         // Manager Menu Screen Handlers
         managerMenuBackButton_scene.setOnAction(e -> primaryStage.setScene(managerScene));
         employeeActionsBackButton.setOnAction(e -> primaryStage.setScene(managerMenuScene));
-        salesAnalyticsButton_scene.setOnAction(e -> System.out.println("Navigate to Sales Analytics")); // Placeholder
         employeeAnalyticsButton_scene.setOnAction(e -> System.out.println("Navigate to Employee Analytics")); // Placeholder
         performanceAnalyticsButton_scene.setOnAction(e -> System.out.println("Navigate to Performance Analytics")); // Placeholder
         employeeActionsButton_scene.setOnAction(e -> {
@@ -1024,6 +1072,7 @@ public class Main extends Application {
                 paymentScene.getStylesheets().add(cssPath);
                 employeeActionsScene.getStylesheets().add(cssPath);
                 addNewEmployeeScene.getStylesheets().add(cssPath);
+                completedOrdersScene.getStylesheets().add(cssPath);
 
             } else {
                 System.err.println("Warning: Styles.css not found. UI will use default styles.");
