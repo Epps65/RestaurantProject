@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -474,6 +474,51 @@ public class Main extends Application {
         );
         Scene completedOrdersScene = new Scene(completedOrdersPane, 500, 450);
 
+
+        //Employee Analytics Scene
+        VBox employeeAnalyticsPane = new VBox(15);
+        employeeAnalyticsPane.setPadding(new Insets(20));
+        employeeAnalyticsPane.setAlignment(Pos.CENTER);
+        Label employeeAnalyticsTitle = new Label("Employee Analytics");
+        employeeAnalyticsTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        ListView<User> employeeListView = new ListView<>();
+        completedOrdersListView.setPrefHeight(300);
+
+        Button employeeAnalyticsBackButton = new Button("Back to Manager Menu");
+        employeeAnalyticsBackButton.setPrefWidth(200);
+
+        employeeAnalyticsPane.getChildren().addAll(
+                employeeAnalyticsTitle,
+                employeeListView,
+                employeeAnalyticsBackButton
+        );
+        Scene employeeAnalyticsScene = new Scene(employeeAnalyticsPane, 500, 450);
+        employeeAnalyticsBackButton.setOnAction(e -> {
+            primaryStage.setScene(managerMenuScene);
+        });
+
+        //Performance Analytics Scene
+        VBox performanceAnalyticsPane = new VBox(15);
+        performanceAnalyticsPane.setPadding(new Insets(20));
+        performanceAnalyticsPane.setAlignment(Pos.CENTER);
+        Label performanceAnalyticsTitle = new Label("Performance Analytics");
+        performanceAnalyticsTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        //ListView<User> employeeListView = new ListView<>();
+        //completedOrdersListView.setPrefHeight(300);
+
+        Button performanceAnalyticsBackButton = new Button("Back to Manager Menu");
+        performanceAnalyticsBackButton.setPrefWidth(200);
+
+        performanceAnalyticsPane.getChildren().addAll(
+                performanceAnalyticsTitle,
+                performanceAnalyticsBackButton
+        );
+        Scene performanceAnalyticsScene = new Scene(performanceAnalyticsPane, 500, 450);
+        performanceAnalyticsBackButton.setOnAction(e -> {
+            primaryStage.setScene(managerMenuScene);
+        });
 
         // --- Order Management Screen  ---
         // Left Pane: Menu Categories and Items
@@ -968,12 +1013,11 @@ public class Main extends Application {
         // Manager Menu Screen Handlers
         managerMenuBackButton_scene.setOnAction(e -> primaryStage.setScene(managerScene));
         employeeActionsBackButton.setOnAction(e -> primaryStage.setScene(managerMenuScene));
-        employeeAnalyticsButton_scene.setOnAction(e -> System.out.println("Navigate to Employee Analytics")); // Placeholder
-        performanceAnalyticsButton_scene.setOnAction(e -> System.out.println("Navigate to Performance Analytics")); // Placeholder
+        employeeAnalyticsButton_scene.setOnAction(e -> primaryStage.setScene(employeeAnalyticsScene)); // Placeholder
+        performanceAnalyticsButton_scene.setOnAction(e -> primaryStage.setScene(performanceAnalyticsScene)); // Placeholder
         employeeActionsButton_scene.setOnAction(e -> {
             primaryStage.setScene(employeeActionsScene); // Navigate to Employee Actions screen
         });
-
 
         // Busboy Screen Handlers
         // Waiter Punch/Logout Handlers
